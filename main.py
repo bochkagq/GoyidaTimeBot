@@ -18,7 +18,6 @@ intents.message_content = True
 bot = commands.Bot(command_prefix=PREFIX, intents=intents)
 active_sessions = {}
 
-# --- ИНИЦИАЛИЗАЦИЯ БАЗЫ ДАННЫХ ---
 async def init_db():
     async with aiosqlite.connect('voice_stats.db') as db:
         await db.execute('''CREATE TABLE IF NOT EXISTS stats 
@@ -56,18 +55,17 @@ def format_time(seconds):
     minutes = (seconds % 3600) // 60
     return f"{hours}ч {minutes}м"
 
-# --- ЛОГИКА ОБЪЯВЛЕНИЯ ПОБЕДИТЕЛЯ ---
 async def announce_winner(period_key, column_name, title_suffix):
-    """Находит лидера и отправляет Embed с поздравлением"""
+
     async with aiosqlite.connect('voice_stats.db') as db:
-        # Получаем канал, где привязана таблица
+
         async with db.execute("SELECT channel_id FROM config WHERE key = ?", (f"lb_{period_key}",)) as cursor:
             conf = await cursor.fetchone()
             if not conf: return
             channel = bot.get_channel(conf[0])
             if not channel: return
 
-        # Ищем лидера
+
         query = f"""
             SELECT user_id, {column_name} FROM stats 
             WHERE user_id NOT IN (SELECT user_id FROM blacklist) 
@@ -136,20 +134,18 @@ async def perform_update():
                 await message.edit(embed=embed)
             except: continue
 
-# --- ЦИКЛЫ ---
+
 @tasks.loop(minutes=1)
 async def check_resets():
     now = datetime.now()
     if now.hour == 0 and now.minute == 0:
-        # 1. Сохраняем последнее время активных
+
         await perform_update()
         
-        # 2. Объявляем победителей до сброса
         await announce_winner('day', 'daily', 'дня')
         if now.day == 1:
             await announce_winner('month', 'monthly', 'месяца')
 
-        # 3. Сбрасываем базу
         async with aiosqlite.connect('voice_stats.db') as db:
             await db.execute("UPDATE stats SET daily = 0")
             if now.day == 1:
@@ -161,7 +157,6 @@ async def check_resets():
 async def update_leaderboards_task():
     await perform_update()
 
-# --- СОБЫТИЯ ---
 @bot.event
 async def on_ready():
     await init_db()
@@ -185,7 +180,6 @@ async def on_voice_state_update(member, before, after):
         join_time = active_sessions.pop(member.id, None)
         if join_time: await add_time_to_db(member.id, now - join_time)
 
-# --- КОМАНДЫ ---
 @bot.command()
 @commands.has_permissions(administrator=True)
 async def ignore(ctx, member: discord.Member):
