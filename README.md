@@ -110,6 +110,8 @@ A Virtual Environment (Venv) is recommended to keep dependencies isolated.
 | `!stats_month` | Personal stats for this month / Статистика за месяц |
 | `!stats_alltime` | Total personal stats / Статистика за все время |
 | `!init_leaderboard_day` | Admin: Setup daily leaderboard / Создать топ за день |
+| `!init_leaderboard_month` | Admin: Setup monthly leaderboard / Создать топ за месяц |
+| `!init_leaderboard_alltime` | Admin: Setup an all time leaderboard / Создать топ за все время |
 | `!update_now` | Admin: Force data sync / Принудительно обновить топы |
 
 ---
