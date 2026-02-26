@@ -110,7 +110,7 @@ async def perform_update():
             except Exception as e:
                 print(f"Ошибка обновления {key}: {e}")
 
-# --- ЦИКЛЫ И СОБЫТИЯ ---
+
 @tasks.loop(minutes=1)
 async def check_resets():
     now = datetime.now()
